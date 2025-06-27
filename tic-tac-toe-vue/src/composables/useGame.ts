@@ -1,7 +1,9 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useGameState } from './useGameState'
 import { useGameMode } from './useGameMode'
 import type { GameMode, AIDifficulty } from './useGameMode'
+import { aiManager } from '../ai/aiManager'
+import type { AIMoveResult } from '../ai/aiManager'
 
 export interface GameStats {
   gamesPlayed: number
@@ -25,18 +27,44 @@ export function useGame() {
     ties: 0,
   })
 
+  // AI state
+  const isAIThinking = ref(false)
+  const lastAIMove = ref<AIMoveResult | null>(null)
+
   // Computed properties
-  const canMakeMove = computed(() => !gameState.isGameOver.value && !isProcessingMove.value)
+  const canMakeMove = computed(
+    () =>
+      !gameState.isGameOver.value &&
+      !isProcessingMove.value &&
+      !isAIThinking.value &&
+      (!gameMode.isAIEnabled.value || !gameMode.isAITurn(gameState.currentPlayer.value)),
+  )
 
   const currentPlayerDisplay = computed(() => {
     if (gameState.isGameOver.value) return ''
 
+    if (isAIThinking.value) return 'AI is thinking...'
+
     if (gameMode.isAIEnabled.value) {
-      return gameMode.isAITurn(gameState.currentPlayer.value) ? 'AI' : 'Human'
+      const isAITurn = gameMode.isAITurn(gameState.currentPlayer.value)
+      if (isAITurn) {
+        return `AI (${gameState.currentPlayer.value})`
+      } else {
+        return `Human (${gameState.currentPlayer.value})`
+      }
     }
 
     return `Player ${gameState.currentPlayer.value}`
   })
+
+  const shouldTriggerAI = computed(
+    () =>
+      gameMode.isAIEnabled.value &&
+      gameMode.isAITurn(gameState.currentPlayer.value) &&
+      !gameState.isGameOver.value &&
+      !isProcessingMove.value &&
+      !isAIThinking.value,
+  )
 
   // Game actions
   async function makeMove(index: number): Promise<boolean> {
@@ -66,10 +94,49 @@ export function useGame() {
     }
   }
 
+  // AI move function
+  async function makeAIMove(): Promise<boolean> {
+    if (!gameMode.isAIEnabled.value || !shouldTriggerAI.value) {
+      return false
+    }
+
+    isAIThinking.value = true
+
+    try {
+      const aiMoveResult = await aiManager.makeAIMove(
+        [...gameState.board.value],
+        gameState.currentPlayer.value,
+      )
+      lastAIMove.value = aiMoveResult
+
+      const success = gameState.makeMove(aiMoveResult.move)
+
+      if (success) {
+        // Add AI move to history with reasoning
+        const move = `AI-${gameState.currentPlayer.value === 'X' ? 'O' : 'X'}:${aiMoveResult.move} (${aiMoveResult.reasoning})`
+        gameHistory.value.push(move)
+
+        // If game is over, update stats
+        if (gameState.isGameOver.value) {
+          updateStats()
+        }
+      }
+
+      return success
+    } catch (error) {
+      console.error('AI move failed:', error)
+      return false
+    } finally {
+      isAIThinking.value = false
+    }
+  }
+
   function newGame(): void {
     gameState.resetGame()
     gameHistory.value = []
     isProcessingMove.value = false
+    isAIThinking.value = false
+    lastAIMove.value = null
   }
 
   function updateStats(): void {
@@ -132,14 +199,29 @@ export function useGame() {
     }
   }
 
-  // Watch for AI turns and trigger AI moves
-  const shouldTriggerAI = computed(
-    () =>
-      gameMode.isAIEnabled.value &&
-      gameMode.isAITurn(gameState.currentPlayer.value) &&
-      !gameState.isGameOver.value &&
-      !isProcessingMove.value,
+  // Initialize AI when game mode changes
+  watch(
+    [
+      () => gameMode.gameMode.value,
+      () => gameMode.aiDifficulty.value,
+      () => gameMode.aiPlayer.value,
+    ],
+    () => {
+      if (gameMode.isAIEnabled.value) {
+        aiManager.setAI(gameMode.aiDifficulty.value, gameMode.aiPlayer.value)
+      }
+    },
+    { immediate: true },
   )
+
+  // Watch for AI turns and trigger AI moves
+  watch(shouldTriggerAI, (should) => {
+    if (should) {
+      nextTick(() => {
+        makeAIMove()
+      })
+    }
+  })
 
   return {
     // Game state (readonly)
@@ -150,14 +232,17 @@ export function useGame() {
 
     // Additional state
     isProcessingMove: computed(() => isProcessingMove.value),
+    isAIThinking: computed(() => isAIThinking.value),
     gameHistory: computed(() => [...gameHistory.value]),
     stats: computed(() => ({ ...stats.value })),
+    lastAIMove: computed(() => lastAIMove.value),
     canMakeMove,
     currentPlayerDisplay,
     shouldTriggerAI,
 
     // Actions
     makeMove,
+    makeAIMove,
     newGame,
     changeGameMode,
     changeAIDifficulty,
@@ -165,5 +250,9 @@ export function useGame() {
     getMoveHistory,
     getGameSummary,
     resetStats,
+
+    // AI utilities
+    getAIName: () => aiManager.getAIName(),
+    getAIDescription: () => aiManager.getAIDescription(),
   }
 }

@@ -1,4 +1,7 @@
 import { ref, computed, readonly } from 'vue'
+import { GameEngine, createGameEngine } from '../utils/gameEngine'
+import type { GameEngineState, MoveResult } from '../utils/gameEngine'
+import { validateMove } from '../utils/gameLogic'
 
 export type Player = 'X' | 'O'
 export type Cell = Player | ''
@@ -12,99 +15,147 @@ export interface GameState {
   winner: Player | null
   moveCount: number
   winningLine: number[] | null
+  moveHistory: string[]
+  lastMove: number | null
 }
 
-const WINNING_COMBINATIONS = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8], // Rows
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8], // Columns
-  [0, 4, 8],
-  [2, 4, 6], // Diagonals
-]
-
 export function useGameState() {
-  // Reactive state
-  const board = ref<Board>(Array(9).fill(''))
-  const currentPlayer = ref<Player>('X')
-  const status = ref<GameStatus>('playing')
-  const winner = ref<Player | null>(null)
-  const moveCount = ref(0)
-  const winningLine = ref<number[] | null>(null)
+  // Game engine instance
+  const gameEngine = ref<GameEngine>(createGameEngine())
 
-  // Computed properties
+  // Reactive state derived from game engine
+  const engineState = ref<GameEngineState>(gameEngine.value.getState())
+
+  // Computed properties derived from engine state
   const gameState = computed<GameState>(() => ({
-    board: board.value,
-    currentPlayer: currentPlayer.value,
-    status: status.value,
-    winner: winner.value,
-    moveCount: moveCount.value,
-    winningLine: winningLine.value,
+    board: engineState.value.board,
+    currentPlayer: engineState.value.currentPlayer,
+    status: engineState.value.status,
+    winner: engineState.value.winner,
+    moveCount: engineState.value.moveCount,
+    winningLine: engineState.value.winningLine,
+    moveHistory: engineState.value.moveHistory,
+    lastMove: engineState.value.lastMove,
   }))
+
+  const board = computed(() => engineState.value.board)
+  const currentPlayer = computed(() => engineState.value.currentPlayer)
+  const status = computed(() => engineState.value.status)
+  const winner = computed(() => engineState.value.winner)
+  const moveCount = computed(() => engineState.value.moveCount)
+  const winningLine = computed(() => engineState.value.winningLine)
+  const moveHistory = computed(() => engineState.value.moveHistory)
+  const lastMove = computed(() => engineState.value.lastMove)
 
   const isGameOver = computed(() => status.value !== 'playing')
   const isBoardFull = computed(() => moveCount.value === 9)
 
-  // Core game functions
-  function checkWinner(board: Board): { winner: Player | null; line: number[] | null } {
-    for (const combination of WINNING_COMBINATIONS) {
-      const [a, b, c] = combination
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return { winner: board[a] as Player, line: combination }
-      }
-    }
-    return { winner: null, line: null }
+  // Sync engine state with reactive state
+  function syncState(): void {
+    engineState.value = gameEngine.value.getState()
   }
 
+  // Enhanced move function with better error handling
   function makeMove(index: number): boolean {
-    // Validate move
-    if (board.value[index] !== '' || isGameOver.value) {
+    const result: MoveResult = gameEngine.value.makeMove(index)
+
+    if (result.success) {
+      syncState()
+      return true
+    } else {
+      console.warn('Invalid move:', result.error)
       return false
     }
-
-    // Make the move
-    board.value[index] = currentPlayer.value
-    moveCount.value++
-
-    // Check for winner
-    const result = checkWinner(board.value)
-    if (result.winner) {
-      winner.value = result.winner
-      winningLine.value = result.line
-      status.value = 'won'
-      return true
-    }
-
-    // Check for tie
-    if (isBoardFull.value) {
-      status.value = 'tie'
-      return true
-    }
-
-    // Switch players
-    currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X'
-    return true
   }
 
-  function resetGame(): void {
-    board.value = Array(9).fill('')
-    currentPlayer.value = 'X'
-    status.value = 'playing'
-    winner.value = null
-    moveCount.value = 0
-    winningLine.value = null
+  // Enhanced reset function
+  function resetGame(startingPlayer: Player = 'X'): void {
+    gameEngine.value.reset(startingPlayer)
+    syncState()
   }
 
+  // Enhanced move validation
   function isValidMove(index: number): boolean {
-    return board.value[index] === '' && !isGameOver.value
+    return gameEngine.value.isValidMove(index)
   }
 
+  // Get available moves from engine
   function getAvailableMoves(): number[] {
-    return board.value
-      .map((cell, index) => (cell === '' ? index : -1))
-      .filter((index) => index !== -1)
+    return gameEngine.value.getAvailableMoves()
+  }
+
+  // Legacy checkWinner function for compatibility
+  function checkWinner(board: Board): { winner: Player | null; line: number[] | null } {
+    // Create a temporary engine to evaluate the board
+    const tempEngine = createGameEngine()
+    tempEngine.loadState({
+      board,
+      moveCount: board.filter((cell) => cell !== '').length,
+    })
+
+    const state = tempEngine.getState()
+    return {
+      winner: state.winner,
+      line: state.winningLine,
+    }
+  }
+
+  // New utility functions enabled by the engine
+  function undoLastMove(): boolean {
+    const result = gameEngine.value.undoLastMove()
+    if (result.success) {
+      syncState()
+      return true
+    }
+    return false
+  }
+
+  function getGameSummary() {
+    return gameEngine.value.getGameSummary()
+  }
+
+  function exportGameState(): string {
+    return gameEngine.value.exportState()
+  }
+
+  function importGameState(stateString: string): boolean {
+    const newEngine = GameEngine.fromExportedState(stateString)
+    if (newEngine) {
+      gameEngine.value = newEngine
+      syncState()
+      return true
+    }
+    return false
+  }
+
+  // Get move description for the last move
+  function getLastMoveDescription(): string | null {
+    const history = moveHistory.value
+    return history.length > 0 ? history[history.length - 1] : null
+  }
+
+  // Check if we can undo
+  function canUndo(): boolean {
+    return moveCount.value > 0
+  }
+
+  // Get detailed move validation info
+  function getMoveValidation(index: number): { isValid: boolean; reason?: string } {
+    const validation = validateMove(board.value, index, isGameOver.value)
+    return validation
+  }
+
+  // Advanced game state queries
+  function getPlayerMoveCount(player: Player): number {
+    return board.value.filter((cell) => cell === player).length
+  }
+
+  function getTurnNumber(): number {
+    return Math.floor(moveCount.value / 2) + 1
+  }
+
+  function isPlayerTurn(player: Player): boolean {
+    return currentPlayer.value === player && !isGameOver.value
   }
 
   return {
@@ -116,14 +167,33 @@ export function useGameState() {
     winner: readonly(winner),
     moveCount: readonly(moveCount),
     winningLine: readonly(winningLine),
+    moveHistory: readonly(moveHistory),
+    lastMove: readonly(lastMove),
     isGameOver: readonly(isGameOver),
     isBoardFull: readonly(isBoardFull),
 
-    // Actions
+    // Core actions
     makeMove,
     resetGame,
     isValidMove,
     getAvailableMoves,
     checkWinner,
+
+    // Enhanced actions
+    undoLastMove,
+    canUndo,
+    getGameSummary,
+    exportGameState,
+    importGameState,
+    getLastMoveDescription,
+    getMoveValidation,
+
+    // Advanced queries
+    getPlayerMoveCount,
+    getTurnNumber,
+    isPlayerTurn,
+
+    // Engine access (for advanced use cases)
+    getEngine: () => gameEngine.value,
   }
 }

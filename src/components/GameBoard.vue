@@ -2,8 +2,8 @@
 // Enhanced GameBoard component with animations and visual effects
 
 interface Props {
-  board?: string[]
-  winningLine?: number[] | null
+  board?: readonly string[]
+  winningLine?: readonly number[] | null
   canMakeMove?: boolean
   isProcessing?: boolean
 }

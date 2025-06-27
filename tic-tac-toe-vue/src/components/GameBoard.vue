@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
   board: () => ['', '', '', '', '', '', '', '', ''],
   winningLine: null,
   canMakeMove: true,
-  isProcessing: false
+  isProcessing: false,
 })
 
 // Events this component can emit
@@ -81,7 +81,7 @@ const getCellAnimationClass = (cell: string, cellIndex: number): string => {
             'bg-gradient-to-br from-red-200 to-red-300 border-red-500 text-red-800 shadow-xl ring-4 ring-red-200 animate-pulse scale-110':
               cell === 'O' && isWinningCell(cellIndex),
           },
-          getCellAnimationClass(cell, cellIndex)
+          getCellAnimationClass(cell, cellIndex),
         ]"
         @click="handleCellClick(cellIndex)"
       >
@@ -91,7 +91,7 @@ const getCellAnimationClass = (cell: string, cellIndex: number): string => {
           class="transition-all duration-300 transform"
           :class="{
             'animate-bounce': isWinningCell(cellIndex),
-            'animate-fade-in': !isWinningCell(cellIndex)
+            'animate-fade-in': !isWinningCell(cellIndex),
           }"
         >
           {{ cell }}
@@ -156,7 +156,8 @@ const getCellAnimationClass = (cell: string, cellIndex: number): string => {
 }
 
 @keyframes winning-cell {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1.1) rotate(0deg);
   }
   25% {

@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
   gameMode: 'Human vs Human',
   moveCount: 0,
   isProcessing: false,
-  stats: null
+  stats: null,
 })
 
 // Events this component can emit
@@ -46,7 +46,7 @@ const statusMessage = computed(() => {
     return `🎉 Player ${props.winner} Wins!`
   }
   if (props.isTie) {
-    return '🤝 It\'s a Tie!'
+    return "🤝 It's a Tie!"
   }
   if (props.isProcessing) {
     return '⏳ Processing move...'
@@ -58,10 +58,14 @@ const statusMessage = computed(() => {
 const statusClasses = computed(() => [
   'text-center p-6 rounded-xl transition-all duration-500 transform',
   {
-    'bg-gradient-to-br from-green-50 to-emerald-100 text-green-800 border border-green-200 scale-105': props.winner,
-    'bg-gradient-to-br from-yellow-50 to-orange-100 text-yellow-800 border border-yellow-200 scale-105': props.isTie,
-    'bg-gradient-to-br from-indigo-50 to-purple-100 text-indigo-800 border border-indigo-200': props.isProcessing,
-    'bg-gradient-to-br from-white to-gray-50 text-gray-800 border border-gray-200': !props.winner && !props.isTie && !props.isProcessing,
+    'bg-gradient-to-br from-green-50 to-emerald-100 text-green-800 border border-green-200 scale-105':
+      props.winner,
+    'bg-gradient-to-br from-yellow-50 to-orange-100 text-yellow-800 border border-yellow-200 scale-105':
+      props.isTie,
+    'bg-gradient-to-br from-indigo-50 to-purple-100 text-indigo-800 border border-indigo-200':
+      props.isProcessing,
+    'bg-gradient-to-br from-white to-gray-50 text-gray-800 border border-gray-200':
+      !props.winner && !props.isTie && !props.isProcessing,
   },
 ])
 
@@ -74,8 +78,14 @@ const gameStatsDisplay = computed(() => {
     human: props.stats.humanWins,
     ai: props.stats.aiWins,
     ties: props.stats.ties,
-    humanWinRate: props.stats.gamesPlayed > 0 ? ((props.stats.humanWins / props.stats.gamesPlayed) * 100).toFixed(1) : '0',
-    aiWinRate: props.stats.gamesPlayed > 0 ? ((props.stats.aiWins / props.stats.gamesPlayed) * 100).toFixed(1) : '0'
+    humanWinRate:
+      props.stats.gamesPlayed > 0
+        ? ((props.stats.humanWins / props.stats.gamesPlayed) * 100).toFixed(1)
+        : '0',
+    aiWinRate:
+      props.stats.gamesPlayed > 0
+        ? ((props.stats.aiWins / props.stats.gamesPlayed) * 100).toFixed(1)
+        : '0',
   }
 })
 
@@ -114,27 +124,17 @@ const showUndo = computed(() => props.moveCount > 0 && !props.isGameOver && !pro
         class="mb-4 p-4 bg-white bg-opacity-70 rounded-xl animate-fade-in"
       >
         <div class="text-5xl mb-2 animate-bounce">🏆</div>
-        <div class="font-semibold">
-          Congratulations! Player {{ props.winner }} wins!
-        </div>
+        <div class="font-semibold">Congratulations! Player {{ props.winner }} wins!</div>
       </div>
 
       <!-- Tie Game Display -->
-      <div
-        v-if="props.isTie"
-        class="mb-4 p-4 bg-white bg-opacity-70 rounded-xl animate-fade-in"
-      >
+      <div v-if="props.isTie" class="mb-4 p-4 bg-white bg-opacity-70 rounded-xl animate-fade-in">
         <div class="text-5xl mb-2 animate-pulse">🤝</div>
-        <div class="font-semibold">
-          It's a tie! Great game!
-        </div>
+        <div class="font-semibold">It's a tie! Great game!</div>
       </div>
 
       <!-- Processing Indicator -->
-      <div
-        v-if="props.isProcessing"
-        class="mb-4 p-4 bg-white bg-opacity-70 rounded-xl"
-      >
+      <div v-if="props.isProcessing" class="mb-4 p-4 bg-white bg-opacity-70 rounded-xl">
         <div class="flex items-center justify-center gap-3">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
           <span class="font-semibold">AI is thinking...</span>
@@ -151,7 +151,12 @@ const showUndo = computed(() => props.moveCount > 0 && !props.isGameOver && !pro
       >
         <span class="flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
           New Game
         </span>
@@ -164,7 +169,12 @@ const showUndo = computed(() => props.moveCount > 0 && !props.isGameOver && !pro
       >
         <span class="flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+            />
           </svg>
           Undo
         </span>

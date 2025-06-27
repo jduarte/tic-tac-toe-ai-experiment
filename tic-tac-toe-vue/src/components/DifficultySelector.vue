@@ -32,13 +32,13 @@ const gameModeOptions = [
     value: 'human-vs-human',
     label: 'Human vs Human',
     description: 'Two players take turns',
-    icon: '👥'
+    icon: '👥',
   },
   {
     value: 'human-vs-ai',
     label: 'Human vs AI',
     description: 'Play against computer',
-    icon: '🤖'
+    icon: '🤖',
   },
 ] as const
 
@@ -50,7 +50,7 @@ const difficultyOptions = [
     description: 'Random moves with occasional strategy',
     winRate: '~30%',
     color: 'green',
-    icon: '😊'
+    icon: '😊',
   },
   {
     value: 'medium',
@@ -58,7 +58,7 @@ const difficultyOptions = [
     description: 'Smart tactical play with forks',
     winRate: '~70%',
     color: 'yellow',
-    icon: '🤔'
+    icon: '🤔',
   },
   {
     value: 'hard',
@@ -66,7 +66,7 @@ const difficultyOptions = [
     description: 'Perfect minimax algorithm',
     winRate: '~95%',
     color: 'red',
-    icon: '🔥'
+    icon: '🔥',
   },
 ] as const
 
@@ -92,20 +92,22 @@ const handleAIPlayerChange = (player: 'X' | 'O') => {
 }
 
 // Get current difficulty details
-const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDifficulty)
+const currentDifficulty = difficultyOptions.find((opt) => opt.value === props.aiDifficulty)
 </script>
 
 <template>
-  <div class="w-full max-w-xl mx-auto p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-200">
-    <h3 class="text-xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center gap-2">
+  <div
+    class="w-full max-w-xl mx-auto p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-200"
+  >
+    <h3
+      class="text-xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center gap-2"
+    >
       ⚙️ Game Settings
     </h3>
 
     <!-- Game Mode Selection -->
     <div class="mb-6">
-      <label class="block text-sm font-semibold text-gray-700 mb-3">
-        🎮 Game Mode
-      </label>
+      <label class="block text-sm font-semibold text-gray-700 mb-3"> 🎮 Game Mode </label>
       <div class="grid grid-cols-1 gap-3">
         <div
           v-for="option in gameModeOptions"
@@ -114,9 +116,10 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
             'p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105',
             {
               'border-indigo-500 bg-indigo-50 shadow-md': props.gameMode === option.value,
-              'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm': props.gameMode !== option.value,
-              'opacity-50 cursor-not-allowed': props.disabled
-            }
+              'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm':
+                props.gameMode !== option.value,
+              'opacity-50 cursor-not-allowed': props.disabled,
+            },
           ]"
           @click="!props.disabled && handleGameModeChange(option.value)"
         >
@@ -131,8 +134,8 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
                 'w-4 h-4 rounded-full border-2 transition-all duration-200',
                 {
                   'bg-indigo-500 border-indigo-500': props.gameMode === option.value,
-                  'border-gray-300': props.gameMode !== option.value
-                }
+                  'border-gray-300': props.gameMode !== option.value,
+                },
               ]"
             />
           </div>
@@ -144,9 +147,7 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
     <div v-if="props.gameMode === 'human-vs-ai'" class="space-y-6 animate-fade-in">
       <!-- AI Difficulty Selection -->
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-3">
-          🧠 AI Difficulty
-        </label>
+        <label class="block text-sm font-semibold text-gray-700 mb-3"> 🧠 AI Difficulty </label>
         <div class="grid grid-cols-1 gap-3">
           <div
             v-for="option in difficultyOptions"
@@ -154,10 +155,12 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
             :class="[
               'p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105',
               {
-                [`border-${option.color}-500 bg-${option.color}-50 shadow-md`]: props.aiDifficulty === option.value,
-                'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm': props.aiDifficulty !== option.value,
-                'opacity-50 cursor-not-allowed': props.disabled
-              }
+                [`border-${option.color}-500 bg-${option.color}-50 shadow-md`]:
+                  props.aiDifficulty === option.value,
+                'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm':
+                  props.aiDifficulty !== option.value,
+                'opacity-50 cursor-not-allowed': props.disabled,
+              },
             ]"
             @click="!props.disabled && handleDifficultyChange(option.value)"
           >
@@ -172,8 +175,8 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
                       {
                         'bg-green-100 text-green-700': option.color === 'green',
                         'bg-yellow-100 text-yellow-700': option.color === 'yellow',
-                        'bg-red-100 text-red-700': option.color === 'red'
-                      }
+                        'bg-red-100 text-red-700': option.color === 'red',
+                      },
                     ]"
                   >
                     {{ option.winRate }}
@@ -185,9 +188,10 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
                 :class="[
                   'w-4 h-4 rounded-full border-2 transition-all duration-200',
                   {
-                    [`bg-${option.color}-500 border-${option.color}-500`]: props.aiDifficulty === option.value,
-                    'border-gray-300': props.aiDifficulty !== option.value
-                  }
+                    [`bg-${option.color}-500 border-${option.color}-500`]:
+                      props.aiDifficulty === option.value,
+                    'border-gray-300': props.aiDifficulty !== option.value,
+                  },
                 ]"
               />
             </div>
@@ -197,9 +201,7 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
 
       <!-- AI Player Selection -->
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-3">
-          🎯 AI Player
-        </label>
+        <label class="block text-sm font-semibold text-gray-700 mb-3"> 🎯 AI Player </label>
         <div class="grid grid-cols-2 gap-3">
           <div
             v-for="option in aiPlayerOptions"
@@ -208,16 +210,20 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
               'p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 text-center',
               {
                 'border-indigo-500 bg-indigo-50 shadow-md': props.aiPlayer === option.value,
-                'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm': props.aiPlayer !== option.value,
-                'opacity-50 cursor-not-allowed': props.disabled
-              }
+                'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm':
+                  props.aiPlayer !== option.value,
+                'opacity-50 cursor-not-allowed': props.disabled,
+              },
             ]"
             @click="!props.disabled && handleAIPlayerChange(option.value)"
           >
-            <div class="text-3xl font-bold mb-2" :class="{
-              'text-blue-600': option.value === 'X',
-              'text-red-600': option.value === 'O'
-            }">
+            <div
+              class="text-3xl font-bold mb-2"
+              :class="{
+                'text-blue-600': option.value === 'X',
+                'text-red-600': option.value === 'O',
+              }"
+            >
               {{ option.value }}
             </div>
             <div class="font-semibold text-gray-800 text-sm">{{ option.label }}</div>
@@ -228,7 +234,9 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
     </div>
 
     <!-- Current Settings Display -->
-    <div class="mt-6 p-4 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl border border-gray-200">
+    <div
+      class="mt-6 p-4 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl border border-gray-200"
+    >
       <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
         📋 Current Configuration
       </h4>
@@ -236,7 +244,7 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
         <div class="flex justify-between">
           <span class="text-gray-600">Mode:</span>
           <span class="font-medium text-gray-800">
-            {{ gameModeOptions.find(opt => opt.value === props.gameMode)?.label }}
+            {{ gameModeOptions.find((opt) => opt.value === props.gameMode)?.label }}
           </span>
         </div>
         <div v-if="props.gameMode === 'human-vs-ai'" class="flex justify-between">
@@ -254,13 +262,20 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
     </div>
 
     <!-- Difficulty Preview -->
-    <div v-if="props.gameMode === 'human-vs-ai' && currentDifficulty" class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 animate-fade-in">
+    <div
+      v-if="props.gameMode === 'human-vs-ai' && currentDifficulty"
+      class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 animate-fade-in"
+    >
       <div class="flex items-start gap-3">
         <span class="text-xl">💡</span>
         <div>
-          <div class="font-medium text-blue-800 text-sm">{{ currentDifficulty.label }} AI Strategy</div>
+          <div class="font-medium text-blue-800 text-sm">
+            {{ currentDifficulty.label }} AI Strategy
+          </div>
           <div class="text-blue-700 text-xs">{{ currentDifficulty.description }}</div>
-          <div class="text-blue-600 text-xs mt-1">Win rate against average players: {{ currentDifficulty.winRate }}</div>
+          <div class="text-blue-600 text-xs mt-1">
+            Win rate against average players: {{ currentDifficulty.winRate }}
+          </div>
         </div>
       </div>
     </div>
@@ -290,17 +305,35 @@ const currentDifficulty = difficultyOptions.find(opt => opt.value === props.aiDi
 }
 
 /* Color-safe approach for dynamic classes */
-.border-green-500 { border-color: #10b981; }
-.bg-green-50 { background-color: #f0fdf4; }
-.bg-green-500 { background-color: #10b981; }
+.border-green-500 {
+  border-color: #10b981;
+}
+.bg-green-50 {
+  background-color: #f0fdf4;
+}
+.bg-green-500 {
+  background-color: #10b981;
+}
 
-.border-yellow-500 { border-color: #f59e0b; }
-.bg-yellow-50 { background-color: #fffbeb; }
-.bg-yellow-500 { background-color: #f59e0b; }
+.border-yellow-500 {
+  border-color: #f59e0b;
+}
+.bg-yellow-50 {
+  background-color: #fffbeb;
+}
+.bg-yellow-500 {
+  background-color: #f59e0b;
+}
 
-.border-red-500 { border-color: #ef4444; }
-.bg-red-50 { background-color: #fef2f2; }
-.bg-red-500 { background-color: #ef4444; }
+.border-red-500 {
+  border-color: #ef4444;
+}
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+.bg-red-500 {
+  background-color: #ef4444;
+}
 
 /* Disabled state styles */
 .opacity-50 {

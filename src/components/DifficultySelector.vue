@@ -74,12 +74,13 @@ const handleAIPlayerChange = (event: Event) => {
         :value="props.gameMode"
         :disabled="props.disabled"
         @change="handleGameModeChange"
-        class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        class="high-contrast-select w-full p-3 text-gray-900 bg-white border-2 border-gray-400 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed appearance-none"
       >
         <option
           v-for="option in gameModeOptions"
           :key="option.value"
           :value="option.value"
+          class="text-gray-900 bg-white p-2"
         >
           {{ option.label }}
         </option>
@@ -97,12 +98,13 @@ const handleAIPlayerChange = (event: Event) => {
           :value="props.aiDifficulty"
           :disabled="props.disabled"
           @change="handleDifficultyChange"
-          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          class="high-contrast-select w-full p-3 text-gray-900 bg-white border-2 border-gray-400 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed appearance-none"
         >
           <option
             v-for="option in difficultyOptions"
             :key="option.value"
             :value="option.value"
+            class="text-gray-900 bg-white p-2"
           >
             {{ option.label }} - {{ option.description }}
           </option>
@@ -118,10 +120,10 @@ const handleAIPlayerChange = (event: Event) => {
           :value="props.aiPlayer"
           :disabled="props.disabled"
           @change="handleAIPlayerChange"
-          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          class="high-contrast-select w-full p-3 text-gray-900 bg-white border-2 border-gray-400 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed appearance-none"
         >
-          <option value="X">X (goes first)</option>
-          <option value="O">O (goes second)</option>
+          <option value="X" class="text-gray-900 bg-white p-2">X (goes first)</option>
+          <option value="O" class="text-gray-900 bg-white p-2">O (goes second)</option>
         </select>
       </div>
     </div>
@@ -140,5 +142,46 @@ const handleAIPlayerChange = (event: Event) => {
 </template>
 
 <style scoped>
-/* Component-specific styles */
+/* High contrast select styling */
+.high-contrast-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6,9 12,15 18,9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.high-contrast-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Ensure high contrast for option elements */
+.high-contrast-select option {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  padding: 8px !important;
+}
+
+.high-contrast-select option:checked {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast-select option:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+/* Disabled state */
+.high-contrast-select:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.high-contrast-select:disabled option {
+  color: #6b7280 !important;
+  background-color: #f9fafb !important;
+}
 </style>

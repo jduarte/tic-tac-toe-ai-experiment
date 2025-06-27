@@ -18,31 +18,32 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Events this component can emit
 const emit = defineEmits<{
-  cellClick: [index: number]
+  cellClick: [cellIndex: number]
 }>()
 
 // Handle cell click and emit to parent
-const handleCellClick = (index: number) => {
-  if (props.canMakeMove && props.board[index] === '' && !props.isProcessing) {
-    emit('cellClick', index)
+const handleCellClick = (cellIndex: number) => {
+  if (props.canMakeMove && props.board[cellIndex] === '' && !props.isProcessing) {
+    emit('cellClick', cellIndex)
   }
 }
 
 // Check if cell is part of winning line
-const isWinningCell = (index: number): boolean => {
-  return props.winningLine?.includes(index) ?? false
+const isWinningCell = (cellIndex: number): boolean => {
+  return props.winningLine?.includes(cellIndex) ?? false
 }
 
 // Check if cell was recently played (for animation)
-const isNewMove = (index: number): boolean => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const isNewMove = (_cellIndex: number): boolean => {
   // This could be enhanced to track the last move
   return false
 }
 
 // Get cell animation class
-const getCellAnimationClass = (cell: string, index: number): string => {
-  if (isWinningCell(index)) return 'animate-winning-cell'
-  if (isNewMove(index)) return 'animate-new-move'
+const getCellAnimationClass = (cell: string, cellIndex: number): string => {
+  if (isWinningCell(cellIndex)) return 'animate-winning-cell'
+  if (isNewMove(cellIndex)) return 'animate-new-move'
   if (cell !== '') return 'animate-cell-appear'
   return ''
 }
@@ -57,8 +58,8 @@ const getCellAnimationClass = (cell: string, index: number): string => {
     >
       <!-- Game Cells -->
       <div
-        v-for="(cell, index) in props.board"
-        :key="index"
+        v-for="(cell, cellIndex) in props.board"
+        :key="cellIndex"
         :class="[
           'relative border-2 rounded-xl flex items-center justify-center text-5xl font-bold aspect-square transition-all duration-300 transform select-none',
           {
@@ -70,27 +71,27 @@ const getCellAnimationClass = (cell: string, index: number): string => {
 
             // X cell states
             'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-400 text-blue-700 shadow-lg':
-              cell === 'X' && !isWinningCell(index),
+              cell === 'X' && !isWinningCell(cellIndex),
             'bg-gradient-to-br from-blue-200 to-blue-300 border-blue-500 text-blue-800 shadow-xl ring-4 ring-blue-200 animate-pulse scale-110':
-              cell === 'X' && isWinningCell(index),
+              cell === 'X' && isWinningCell(cellIndex),
 
             // O cell states
             'bg-gradient-to-br from-red-100 to-red-200 border-red-400 text-red-700 shadow-lg':
-              cell === 'O' && !isWinningCell(index),
+              cell === 'O' && !isWinningCell(cellIndex),
             'bg-gradient-to-br from-red-200 to-red-300 border-red-500 text-red-800 shadow-xl ring-4 ring-red-200 animate-pulse scale-110':
-              cell === 'O' && isWinningCell(index),
+              cell === 'O' && isWinningCell(cellIndex),
           },
-          getCellAnimationClass(cell, index)
+          getCellAnimationClass(cell, cellIndex)
         ]"
-        @click="handleCellClick(index)"
+        @click="handleCellClick(cellIndex)"
       >
         <!-- Cell Content -->
         <span
           v-if="cell"
           class="transition-all duration-300 transform"
           :class="{
-            'animate-bounce': isWinningCell(index),
-            'animate-fade-in': !isWinningCell(index)
+            'animate-bounce': isWinningCell(cellIndex),
+            'animate-fade-in': !isWinningCell(cellIndex)
           }"
         >
           {{ cell }}
@@ -107,7 +108,7 @@ const getCellAnimationClass = (cell: string, index: number): string => {
           v-if="cell === '' && props.canMakeMove"
           class="absolute top-1 left-1 text-xs text-gray-400 opacity-0 group-hover:opacity-50 transition-opacity duration-200"
         >
-          {{ index }}
+          {{ cellIndex }}
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ A modern, fully-featured Tic Tac Toe game built with Vue 3, TypeScript, and Tail
 
 ## 🚀 Live Demo
 
-🔗 **[Play the Game](https://jduarte.github.io/workflows/)** _(Replace with your actual GitHub Pages URL)_
+🔗 **[Play the Game](https://jduarte.github.io/tic-tac-toe-ai-experiment/)**
 
 ## ✨ Features
 
